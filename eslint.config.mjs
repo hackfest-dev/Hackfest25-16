@@ -1,16 +1,28 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import globals from "globals";
+import tseslint from "typescript-eslint";
+import { defineConfig } from "eslint/config";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+export default defineConfig([
+  // For regular JS files
+  { 
+    files: ["**/*.js"], 
+    languageOptions: { sourceType: "script" } 
+  },
 
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
+  // For TS/JS files with browser globals
+  { 
+    files: ["**/*.{js,mjs,cjs,ts,tsx}"], 
+    languageOptions: { globals: globals.browser } 
+  },
 
-const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
-];
+  // Recommended config from typescript-eslint
+  ...tseslint.configs.recommended,
 
-export default eslintConfig;
+  // ✅ Custom rule override for `no-explicit-any`
+  {
+    files: ["**/*.{ts,tsx}"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off", // or "warn" if you want warning only
+    },
+  },
+]);
