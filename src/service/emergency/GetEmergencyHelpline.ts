@@ -22,9 +22,9 @@ export const getAllHelplines = () => async (dispatch: AppDispatch, getState: () 
     const etag = response.headers['etag'];
 
     if (etag) {
-      dispatch(setHelplines({ helplines: response.data, etag }));
+      dispatch(setHelplines({ helplines: response.data as any[], etag }));
     } else {
-      dispatch(setHelplines({ helplines: response.data, etag: cachedEtag }));
+      dispatch(setHelplines({ helplines: response.data as any[], etag: cachedEtag }));
     }
   } catch (error: any) {
     if (error.response && error.response.status !== 304) {
