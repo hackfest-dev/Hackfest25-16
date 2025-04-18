@@ -28,7 +28,7 @@ const listenerSlice = createSlice({
       state,
       action: PayloadAction<{
         listeners: Listener[]; // An array of listeners
-        page: Page; // Pagination details
+        page: any; // Pagination details
         etag: string | null; // The ETag value
       }>
     ) => {

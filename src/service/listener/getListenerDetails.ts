@@ -14,11 +14,8 @@ export const getListenerDetails = async (id: string, token: string, type: string
     );
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error("Error fetching listener details:", error.response?.data);
-    } else {
       console.error("Error fetching listener details:", error);
-    }
+
   }
 };
 

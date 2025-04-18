@@ -37,7 +37,7 @@ const applicationListSlice = createSlice({
       state,
       action: PayloadAction<{
         applications: Application[];
-        page: Page;
+        page: any;
         etag: string | null;
       }>
     ) => {
