@@ -15,4 +15,6 @@ export const SESSION_API_ENDPOINTS = {
   AVG_SESSION_DURATION: `${BASE_API}/avg-duration`,
   GET_SESSIONS_BY_LISTENERS_USER_ID: (userId: string) =>
     `${BASE_API}/listener/${userId}`,
+  GET_SESSION_BY_CATEGORY: (category: string) =>
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/mental-health/api/v1/session-status/filter?${category}`,
 };
