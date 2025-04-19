@@ -1,7 +1,7 @@
 import { FEEDBACK_API_ENDPOINTS } from "@/mapper/feedbackMapper";
 import axiosInstance from "@/utils/axios";
 
-export const getSessionFeedbackSummary = async (token: string) => {
+export const getSessionFeedbackSummary = async (token: string) : Promise<any>=> {
   try {
     const response = await axiosInstance.get(
       FEEDBACK_API_ENDPOINTS.GET_SUMMARY_FEEDBACK,

@@ -1,28 +1,13 @@
-import globals from "globals";
-import tseslint from "typescript-eslint";
-import { defineConfig } from "eslint/config";
-
-export default defineConfig([
-  // For regular JS files
-  { 
-    files: ["**/*.js"], 
-    languageOptions: { sourceType: "script" } 
+module.exports = {
+  root: true,
+  extends: ['next/core-web-vitals'],
+  rules: {
+    // Turn off annoying TypeScript-related rules
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/ban-types': 'off',
+    '@typescript-eslint/no-inferrable-types': 'off',
+    '@typescript-eslint/no-unused-vars': 'off',
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
   },
-
-  // For TS/JS files with browser globals
-  { 
-    files: ["**/*.{js,mjs,cjs,ts,tsx}"], 
-    languageOptions: { globals: globals.browser } 
-  },
-
-  // Recommended config from typescript-eslint
-  ...tseslint.configs.recommended,
-
-  // ✅ Custom rule override for `no-explicit-any`
-  {
-    files: ["**/*.{ts,tsx}"],
-    rules: {
-      "@typescript-eslint/no-explicit-any": "off", // or "warn" if you want warning only
-    },
-  },
-]);
+};

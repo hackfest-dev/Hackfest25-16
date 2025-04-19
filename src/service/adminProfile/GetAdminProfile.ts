@@ -1,7 +1,7 @@
 import axiosInstance from '@/utils/axios';
 import { ADMIN_PROFILE_API_ENDPOINTS } from '@/mapper/adminProfileMapper'; 
 
-export const fetchAdminProfile = async (token: string, userId?: string) => {
+export const fetchAdminProfile = async (token: string, userId?: string): Promise<any> => {
   try {
     const url = userId
       ? `${ADMIN_PROFILE_API_ENDPOINTS.GET_ADMIN_PROFILE}?userId=${userId}`
