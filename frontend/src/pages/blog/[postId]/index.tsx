@@ -26,6 +26,7 @@ const BlogPost = () => {
   const [showErrorModal, setShowErrorModal] = useState<boolean>(false);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [showContactModal, setShowContactModal] = useState<boolean>(false);
+  const [contactSubject, setContactSubject] = useState<string>("");
   const [contactMessage, setContactMessage] = useState<string>("");
   const [contactSending, setContactSending] = useState<boolean>(false);
   const [contactSuccess, setContactSuccess] = useState<boolean>(false);
@@ -139,23 +140,34 @@ const BlogPost = () => {
 
   const handleCloseContactModal = () => {
     setShowContactModal(false);
+    setContactSubject("");
     setContactMessage("");
     setContactSuccess(false);
   };
 
   const handleSubmitContact = async () => {
-    if (!contactMessage.trim()) {
+    if (!contactSubject.trim() || !contactMessage.trim()) {
+      setError("Please fill in both subject and message fields.");
+      setShowErrorModal(true);
       return;
     }
 
     setContactSending(true);
 
     try {
-      await sendMailToAuthor(contactMessage, article.userId, token);
+      await sendMailToAuthor(
+        {
+          subject: contactSubject,
+          body: contactMessage,
+        },
+        article.userId,
+        token
+      );
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       setContactSuccess(true);
+      setContactSubject("");
       setContactMessage("");
 
       // Auto close after success
@@ -382,16 +394,45 @@ const BlogPost = () => {
                 <p className="text-gray-600 mb-4">
                   You can connect to the author directly by sending a message.
                   This will be sent to the author's email address. Please be
-                  respectful and concise in your message.
+                  respectful and concise.
                 </p>
 
-                <textarea
-                  value={contactMessage}
-                  onChange={(e) => setContactMessage(e.target.value)}
-                  placeholder="Write your message here..."
-                  className="w-full border border-green-200 rounded-lg p-3 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all duration-200 min-h-[120px] text-gray-700"
-                  disabled={contactSending}
-                />
+                <div className="space-y-4">
+                  <div>
+                    <label 
+                      htmlFor="contact-subject" 
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Subject
+                    </label>
+                    <input
+                      id="contact-subject"
+                      type="text"
+                      value={contactSubject}
+                      onChange={(e) => setContactSubject(e.target.value)}
+                      placeholder="Enter a subject for your message"
+                      className="w-full border border-green-200 rounded-lg p-3 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all duration-200 text-gray-700"
+                      disabled={contactSending}
+                    />
+                  </div>
+
+                  <div>
+                    <label 
+                      htmlFor="contact-message" 
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Message
+                    </label>
+                    <textarea
+                      id="contact-message"
+                      value={contactMessage}
+                      onChange={(e) => setContactMessage(e.target.value)}
+                      placeholder="Write your message here..."
+                      className="w-full border border-green-200 rounded-lg p-3 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all duration-200 min-h-[120px] text-gray-700"
+                      disabled={contactSending}
+                    />
+                  </div>
+                </div>
 
                 <div className="flex justify-end mt-4 space-x-3">
                   <button
@@ -404,7 +445,7 @@ const BlogPost = () => {
 
                   <button
                     onClick={handleSubmitContact}
-                    disabled={contactSending || !contactMessage.trim()}
+                    disabled={contactSending || !contactSubject.trim() || !contactMessage.trim()}
                     className={`px-5 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-green-400 text-white font-medium transition-all duration-300 flex items-center space-x-2
                       ${
                         contactSending
@@ -412,7 +453,7 @@ const BlogPost = () => {
                           : "hover:shadow-md transform hover:-translate-y-0.5"
                       }
                       ${
-                        !contactMessage.trim()
+                        !contactSubject.trim() || !contactMessage.trim()
                           ? "opacity-50 cursor-not-allowed"
                           : ""
                       }
@@ -509,6 +550,7 @@ const BlogPost = () => {
           </div>
         </div>
       )}
+
     </div>
   );
 };
