@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import ApplicationForm from "@/components/listener/ApplicationForm";
-import ApplicationDetails from "@/components/listener/ApplicationDetails";
 import { RootState } from "@/store";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/router";
@@ -13,6 +12,7 @@ import { clearUser } from "@/store/authSlice";
 import { clearDetailedApplication } from "@/store/detailedApplicationSlice";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import ProfileLayout from "@/components/profile/profilepageLayout";
+import ApplicationDetails from "@/components/listener/ApplicationDetails";
 
 const ListenerApplication = () => {
   const { accessToken } = useSelector((state: RootState) => state.auth);
