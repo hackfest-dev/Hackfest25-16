@@ -4,7 +4,7 @@ import { Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { RootState } from "@/store";
 import { useSelector } from "react-redux";
-import { getSessionFeedbackSummary } from "@/service/sessionReport/sessionReport/sessionSummary";
+import { getSessionFeedbackSummary } from "@/service/sessionReport/sessionSummary";
 function StarRating({ rating }: { rating: number }) {
   return (
     <div className="flex gap-1">

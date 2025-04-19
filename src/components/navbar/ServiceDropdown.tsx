@@ -70,7 +70,8 @@ const ServiceDropdown = () => {
               transition={{ duration: 0.2 }}
               className="absolute right-0 mt-2 w-80 z-40"
             >
-              <Card className="shadow-lg border-gray-200">
+              <Card className="shadow-lg border-gray-200 bg-white">
+
                 <CardHeader>
                   <CardTitle>Our Services</CardTitle>
                   <h3>Choose the service that best fits your needs</h3>

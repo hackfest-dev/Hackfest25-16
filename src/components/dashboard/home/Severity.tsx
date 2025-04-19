@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { RootState } from "@/store";
 import { useSelector } from "react-redux";
-import { getSeverityAnalysis } from "@/service/sessionReport/sessionReport/feedbackSummary";
+import { getSeverityAnalysis } from "@/service/sessionReport/feedbackSummary";
 
 function DotRating({ rating }: { rating: number }) {
   return (

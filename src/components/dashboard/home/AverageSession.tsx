@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { RootState } from "@/store";
 import { useSelector } from "react-redux";
-import { getAverageSessionDetails } from "@/service/sessionReport/sessionReport/avgSession";
+import { getAverageSessionDetails } from "@/service/sessionReport/avgSession";
 
 export default function AverageSession() {
   const token = useSelector((state: RootState) => state.auth.accessToken);
