@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { SessionCard } from './SessionSummaryCard';
 import { SessionModal } from './SessionModal';
 import { getSessionsByCategory } from '@/service/session/getSessionByCategory'; // API service to fetch sessions
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 
 const sessionCategories = [
   "STRESS",
@@ -20,11 +22,12 @@ export const SessionCardList = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [sessions, setSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
+  const accessToken = useSelector((state: RootState) => state.auth.accessToken);
 
   useEffect(() => {
     if (selectedCategory) {
       // Fetch sessions based on selected category
-      getSessionsByCategory(selectedCategory).then(fetchedSessions => {
+      getSessionsByCategory(selectedCategory, accessToken).then(fetchedSessions => {
         setSessions(fetchedSessions);
       }).catch(err => {
         console.error("Error fetching sessions:", err);

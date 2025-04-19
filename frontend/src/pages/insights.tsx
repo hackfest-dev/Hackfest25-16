@@ -14,6 +14,7 @@ import InlineLoader from "@/components/ui/inlineLoader";
 import { PaginationInfo } from "@/lib/types";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import ServerPagination from "@/components/ui/ServerPagination";
+import SessionCategoryChartPage from "@/components/dashboard/home/session-category";
 
 const DashboardPage = () => {
   const [blogs, setBlogs] = useState<BlogApproval[]>([]);
@@ -99,6 +100,16 @@ const DashboardPage = () => {
             </CardHeader>
             <CardContent>
               <Severity />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                Case Category Analysis
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+            <SessionCategoryChartPage />
             </CardContent>
           </Card>
         </div>
