@@ -51,7 +51,7 @@ const BlogPost = () => {
           token
         )) as Article;
         setArticle(response);
-        {console.log("ARTICLE>>>>>>>>>>",article)}
+        console.log("Fetched article>>>>>>>>>>>>>>", response);
       } catch (err) {
         setError("Failed to fetch the article. Please try again later: " + err);
         setShowErrorModal(true);
@@ -297,17 +297,16 @@ const BlogPost = () => {
                   {article?.summary}
                 </p>
               </div>
-              
-              {article.isOpenForCommunication && (
-                  <button
-                    onClick={handleContactAuthor}
-                    className="ml-4 flex items-center justify-center space-x-2 rounded-full py-3 px-5 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 group focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2"
-                    aria-label="Contact author"
-                  >
-                    <MessageCircle className="w-5 h-5 group-hover:animate-pulse" />
-                    <span className="font-medium">Reach Out</span>
-                  </button>
-                )}
+              {article?.isOpenForCommunication && (
+                <button
+                  onClick={handleContactAuthor}
+                  className="ml-4 flex items-center justify-center space-x-2 rounded-full py-3 px-5 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 group focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2"
+                  aria-label="Contact author"
+                >
+                  <MessageCircle className="w-5 h-5 group-hover:animate-pulse" />
+                  <span className="font-medium">Reach Out</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -400,8 +399,8 @@ const BlogPost = () => {
 
                 <div className="space-y-4">
                   <div>
-                    <label 
-                      htmlFor="contact-subject" 
+                    <label
+                      htmlFor="contact-subject"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
                       Subject
@@ -418,8 +417,8 @@ const BlogPost = () => {
                   </div>
 
                   <div>
-                    <label 
-                      htmlFor="contact-message" 
+                    <label
+                      htmlFor="contact-message"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
                       Message
@@ -446,7 +445,11 @@ const BlogPost = () => {
 
                   <button
                     onClick={handleSubmitContact}
-                    disabled={contactSending || !contactSubject.trim() || !contactMessage.trim()}
+                    disabled={
+                      contactSending ||
+                      !contactSubject.trim() ||
+                      !contactMessage.trim()
+                    }
                     className={`px-5 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-green-400 text-white font-medium transition-all duration-300 flex items-center space-x-2
                       ${
                         contactSending
@@ -515,22 +518,22 @@ const BlogPost = () => {
                 <X className="h-6 w-6" />
               </button>
             </div>
-            
+
             <div className="bg-red-50 p-4 rounded-lg">
               <div className="flex items-start">
                 <div className="flex-shrink-0">
-                  <svg 
-                    className="h-6 w-6 text-red-600" 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    fill="none" 
-                    viewBox="0 0 24 24" 
+                  <svg
+                    className="h-6 w-6 text-red-600"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
                     stroke="currentColor"
                   >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" 
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                     />
                   </svg>
                 </div>
@@ -539,7 +542,7 @@ const BlogPost = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="mt-6 flex justify-end">
               <button
                 onClick={closeErrorModal}
@@ -551,7 +554,6 @@ const BlogPost = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };

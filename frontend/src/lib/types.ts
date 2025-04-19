@@ -163,7 +163,7 @@ export interface BlogPost {
   date: string;
   likeCount: number;
   likedByCurrentUser: boolean;
-  isOpenForCommunication?: boolean;
+  isOpenForCommunication: boolean;
 }
 
 export interface Article {
