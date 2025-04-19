@@ -44,19 +44,38 @@ export const CompletedSessions = () => {
           page,
           size: 4,
         });
+
         if (response && response.content) {
           setSessions(response.content);
-          const totalPages = Math.ceil(response.page.totalElements / 4);
+
+          const totalElements = response.page?.totalElements || 0;
+          const totalPages = totalElements > 0 ? Math.ceil(totalElements / 4) : 0;
+
           setPaginationInfo((prev) => ({
             ...prev,
             pageNumber: page,
-            totalElements: response.page.totalElements,
+            totalElements,
             totalPages,
           }));
           setStatusFilter(status);
+        } else {
+          setSessions([]);
+          setPaginationInfo((prev) => ({
+            ...prev,
+            pageNumber: 0,
+            totalElements: 0,
+            totalPages: 0,
+          }));
         }
       } catch (error) {
         console.error("Error fetching sessions:", error);
+        setSessions([]);
+        setPaginationInfo((prev) => ({
+          ...prev,
+          pageNumber: 0,
+          totalElements: 0,
+          totalPages: 0,
+        }));
       } finally {
         setLoading(false);
       }
@@ -141,12 +160,18 @@ export const CompletedSessions = () => {
                 handleUserModal={handleUserModal}
               />
 
-              {sessions.length > 0 && (
+              {sessions.length > 0 ? (
                 <ServerPagination
                   paginationInfo={paginationInfo}
                   elements={sessions}
                   handlePageClick={handlePageChange}
                 />
+              ) : (
+                !loading && (
+                  <div className="text-center text-gray-500 mt-4">
+                    No sessions found.
+                  </div>
+                )
               )}
             </div>
 
