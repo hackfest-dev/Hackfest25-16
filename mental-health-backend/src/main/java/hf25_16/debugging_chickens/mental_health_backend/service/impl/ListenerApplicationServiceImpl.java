@@ -1,0 +1,309 @@
+package hf25_16.debugging_chickens.mental_health_backend.service.impl;
+
+import hf25_16.debugging_chickens.mental_health_backend.dto.Listener.response.ListenerDetailsResponseDTO;
+import hf25_16.debugging_chickens.mental_health_backend.dto.listenerApplication.request.ListenerApplicationRequestDTO;
+import hf25_16.debugging_chickens.mental_health_backend.dto.listenerApplication.response.ListenerApplicationResponseDTO;
+import hf25_16.debugging_chickens.mental_health_backend.dto.listenerApplication.response.ListenerApplicationSummaryResponseDTO;
+import hf25_16.debugging_chickens.mental_health_backend.enums.ListenerApplicationStatus;
+import hf25_16.debugging_chickens.mental_health_backend.enums.Role;
+import hf25_16.debugging_chickens.mental_health_backend.exception.listener.AccessDeniedException;
+import hf25_16.debugging_chickens.mental_health_backend.exception.listener.ApplicationAlreadySubmittedException;
+import hf25_16.debugging_chickens.mental_health_backend.exception.listener.ListenerApplicationNotFoundException;
+import hf25_16.debugging_chickens.mental_health_backend.exception.listener.ListenerNotFoundException;
+import hf25_16.debugging_chickens.mental_health_backend.exception.user.UserNotFoundException;
+import hf25_16.debugging_chickens.mental_health_backend.mapper.ListenerApplicationMapper;
+import hf25_16.debugging_chickens.mental_health_backend.mapper.ListenerDetailsMapper;
+import hf25_16.debugging_chickens.mental_health_backend.model.Listener;
+import hf25_16.debugging_chickens.mental_health_backend.model.ListenerApplication;
+import hf25_16.debugging_chickens.mental_health_backend.model.User;
+import hf25_16.debugging_chickens.mental_health_backend.repository.AdminRepository;
+import hf25_16.debugging_chickens.mental_health_backend.repository.ListenerApplicationRepository;
+import hf25_16.debugging_chickens.mental_health_backend.repository.ListenerRepository;
+import hf25_16.debugging_chickens.mental_health_backend.repository.UserRepository;
+import hf25_16.debugging_chickens.mental_health_backend.security.jwt.JwtUtils;
+import hf25_16.debugging_chickens.mental_health_backend.service.EmailService;
+import hf25_16.debugging_chickens.mental_health_backend.service.ImageStorageService;
+import hf25_16.debugging_chickens.mental_health_backend.service.ListenerApplicationService;
+import hf25_16.debugging_chickens.mental_health_backend.service.UserService;
+import hf25_16.debugging_chickens.mental_health_backend.model.Admin;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.core.GrantedAuthority;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
+@Service
+public class ListenerApplicationServiceImpl implements ListenerApplicationService {
+
+    private final ListenerApplicationRepository listenerApplicationRepository;
+    private final ImageStorageService imageStorageService;
+    private final UserRepository userRepository;
+    private final ListenerRepository listenerRepository;
+    private final JwtUtils jwtUtils;
+    private final EmailService emailService;
+    private final AdminRepository adminRepository;
+
+    @Autowired
+    public ListenerApplicationServiceImpl(
+            ListenerApplicationRepository listenerApplicationRepository,
+            ImageStorageService imageStorageService,
+            UserService userService,
+            UserRepository userRepository,
+            ListenerRepository listenerRepository, JwtUtils jwtUtils,
+            EmailService emailService, AdminRepository adminRepository) {
+        this.listenerApplicationRepository = listenerApplicationRepository;
+        this.imageStorageService = imageStorageService;
+        this.userRepository = userRepository;
+        this.listenerRepository = listenerRepository;
+        this.jwtUtils = jwtUtils;
+        this.emailService = emailService;
+        this.adminRepository = adminRepository;
+    }
+
+    @Override
+    @Transactional
+    public ListenerApplicationResponseDTO submitApplication(
+            ListenerApplicationRequestDTO applicationRequestDTO, MultipartFile certificate) throws Exception {
+        // Extract email from security context
+        String email = getUsernameFromContext(); // User name is email
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new UserNotFoundException("User not found for email: " + email);
+        }
+
+        // Check if the user has already submitted an application
+        if (listenerApplicationRepository.existsByUserEmail(email)) {
+            throw new ApplicationAlreadySubmittedException("Application already submitted for email: " + email);
+        }
+
+        // Map DTO to Entity with User
+        ListenerApplication listenerApplication = ListenerApplicationMapper.toEntity(applicationRequestDTO, user);
+
+        // Handle Certificate Upload
+        CompletableFuture<String> certificateUrlFuture = imageStorageService.uploadImage(certificate);
+        listenerApplication.setCertificateUrl(certificateUrlFuture.get());
+
+        // Set additional fields
+        listenerApplication.setApplicationStatus(ListenerApplicationStatus.PENDING);
+        listenerApplication.setSubmissionDate(LocalDateTime.now());
+
+        // Save Listener Application
+        ListenerApplication savedApplication = listenerApplicationRepository.save(listenerApplication);
+
+        // Send confirmation email to the user
+        emailService.sendListenerApplicationReceivedEmail(email);
+
+        // Send alert email to all admins
+        List<String> adminEmails = adminRepository.findAll().stream()
+                .map(Admin::getEmail)
+                .toList();
+        for (String adminEmail : adminEmails) {
+            emailService.sendNewListenerApplicationAlertToAdmin(adminEmail, savedApplication.getApplicationId().toString());
+        }
+
+        // Convert Entity to Response DTO
+        return ListenerApplicationMapper.toResponseDTO(savedApplication);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ListenerApplicationResponseDTO getApplicationById(Integer applicationId) {
+        // Extract user ID and role from security context
+        Integer userId = jwtUtils.getUserIdFromContext();
+        String role = getRoleFromContext();
+
+        ListenerApplication listenerApplication;
+
+        // If applicationId is null, find the application by user ID
+        if (applicationId == null) {
+            listenerApplication = listenerApplicationRepository.findByUser_UserId(userId);
+            if (listenerApplication == null) {
+                throw new ListenerApplicationNotFoundException("Listener Application not found for User ID: " + userId);
+            }
+
+        } else {
+            listenerApplication = listenerApplicationRepository.findById(applicationId)
+                    .orElseThrow(() -> new ListenerApplicationNotFoundException(
+                            "Listener Application not found for ID: " + applicationId));
+        }
+
+        // Check if the user has access to the application
+        if (!listenerApplication.getUser().getUserId().equals(userId) && !"ROLE_ADMIN".equals(role)) {
+            throw new ListenerApplicationNotFoundException(
+                    "Access denied for Listener Application ID: " + listenerApplication.getApplicationId());
+        }
+
+        // Map and return the Listener Application DTO
+        return ListenerApplicationMapper.toResponseDTO(listenerApplication);
+    }
+
+    @Override
+    @Transactional
+    public void deleteApplication(Integer applicationId) {
+        Integer userId = jwtUtils.getUserIdFromContext();
+        String role = getRoleFromContext();
+        ListenerApplication listenerApplication = listenerApplicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ListenerApplicationNotFoundException(
+                        "Listener Application not found for ID: " + applicationId));
+
+        if (!"ROLE_ADMIN".equals(role) && !listenerApplication.getUser().getUserId().equals(userId)) {
+            throw new AccessDeniedException("Access denied for deleting Listener Application with ID: " + applicationId);
+        }
+        User user = listenerApplication.getUser();
+        user.setRole(Role.USER);
+        userRepository.save(user);
+        listenerApplicationRepository.deleteById(applicationId);
+    }
+
+
+    @Override
+    @Transactional
+    public ListenerApplicationResponseDTO updateApplication(
+            Integer applicationId, ListenerApplicationRequestDTO applicationRequestDTO, MultipartFile certificate) throws Exception {
+        // Extract email and role from security context
+        String email = getUsernameFromContext();
+        String role = getRoleFromContext();
+
+        ListenerApplication listenerApplication = listenerApplicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ListenerApplicationNotFoundException("Listener Application not found for ID: " + applicationId));
+
+        // Check if the email matches or if the role is admin
+        if (!listenerApplication.getUser().getEmail().equals(email) && !"ROLE_ADMIN".equals(role)) {
+            throw new AccessDeniedException("Access denied for updating Listener Application with ID: " + applicationId);
+        }
+
+        // Map DTO to Entity with User
+        User user = listenerApplication.getUser();
+        ListenerApplication updatedApplication = ListenerApplicationMapper.toEntity(applicationRequestDTO, user);
+
+        // Handle Certificate Upload if present
+        if (certificate != null && !certificate.isEmpty()) {
+            // Delete current image if exists
+            if (listenerApplication.getCertificateUrl() != null) {
+                imageStorageService.deleteImage(listenerApplication.getCertificateUrl()).get();
+            }
+            // Upload new image
+            CompletableFuture<String> certificateUrlFuture = imageStorageService.uploadImage(certificate);
+            updatedApplication.setCertificateUrl(certificateUrlFuture.get());
+        } else {
+            // Retain the current certificate URL
+            updatedApplication.setCertificateUrl(listenerApplication.getCertificateUrl());
+        }
+
+        // Set additional fields
+        updatedApplication.setApplicationId(applicationId); // Ensure the ID remains the same
+        updatedApplication.setSubmissionDate(LocalDateTime.now());
+        updatedApplication.setApplicationStatus(listenerApplication.getApplicationStatus());
+        // Save updated Listener Application
+        ListenerApplication savedApplication = listenerApplicationRepository.save(updatedApplication);
+
+        // Convert Entity to Response DTO
+        return ListenerApplicationMapper.toResponseDTO(savedApplication);
+    }
+
+    @Override
+    @Transactional
+    public ListenerDetailsResponseDTO updateApplicationStatus(Integer applicationId, String status) {
+        ListenerApplication listenerApplication = listenerApplicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ListenerApplicationNotFoundException("Listener Application not found for ID: " + applicationId));
+
+        User applicantUser = listenerApplication.getUser();
+        if (applicantUser == null) {
+            throw new UserNotFoundException("User associated with Listener Application not found");
+        }
+
+        if ("APPROVED".equalsIgnoreCase(status)) {
+            return approveApplication(listenerApplication, applicantUser);
+        } else if ("REJECTED".equalsIgnoreCase(status)) {
+            return rejectApplication(listenerApplication, applicantUser);
+        } else {
+            throw new IllegalArgumentException("Invalid status: " + status);
+        }
+    }
+
+    private ListenerDetailsResponseDTO approveApplication(ListenerApplication listenerApplication, User applicantUser) {
+        listenerApplication.setApplicationStatus(ListenerApplicationStatus.APPROVED);
+
+        boolean listenerExists = listenerRepository.existsByUser(applicantUser);
+
+        if (!listenerExists) {
+            applicantUser.setRole(Role.LISTENER);
+            userRepository.save(applicantUser);
+            Listener newListener = new Listener();
+            newListener.setUser(applicantUser);
+            newListener.setCanApproveBlogs(false);
+            newListener.setTotalSessions(0);
+            newListener.setAverageRating(BigDecimal.ZERO);
+            newListener.setJoinedAt(LocalDateTime.now());
+            newListener.setApprovedBy(userRepository.findByEmail(getUsernameFromContext()).getAnonymousName());
+            listenerRepository.save(newListener);
+            listenerApplicationRepository.save(listenerApplication);
+            emailService.sendListenerAcceptanceEmail(applicantUser.getEmail());
+            return ListenerDetailsMapper.toResponseDTO(newListener);
+        } else {
+            listenerApplicationRepository.save(listenerApplication);
+            Listener existingListener = listenerRepository.findByUser(applicantUser)
+                    .orElseThrow(() -> new ListenerNotFoundException("Listener not found for user: " + applicantUser.getEmail()));
+            return ListenerDetailsMapper.toResponseDTO(existingListener);
+        }
+    }
+
+    private ListenerDetailsResponseDTO rejectApplication(ListenerApplication listenerApplication, User applicantUser) {
+        listenerApplication.setApplicationStatus(ListenerApplicationStatus.REJECTED);
+        listenerApplicationRepository.save(listenerApplication);
+        emailService.sendListenerRejectionEmail(applicantUser.getEmail());
+        return null;
+    }
+
+    @Override
+    public Page<ListenerApplicationSummaryResponseDTO> getApplications(String status, Pageable pageable) {
+        try {
+            Page<ListenerApplication> applicationsPage;
+
+            if (status != null && !status.trim().isEmpty()) {
+                ListenerApplicationStatus applicationStatus = ListenerApplicationStatus.valueOf(status.toUpperCase());
+                applicationsPage = listenerApplicationRepository.findByApplicationStatus(applicationStatus, pageable);
+            } else {
+                applicationsPage = listenerApplicationRepository.findAll(pageable);
+            }
+
+            return applicationsPage.map(ListenerApplicationMapper::toSummaryResponseDTO);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid status: " + status, e);
+        } catch (Exception e) {
+            throw new RuntimeException("An error occurred while fetching applications", e);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ListenerApplicationResponseDTO getApplicationsByUserId(Integer userId) {
+        ListenerApplication application = listenerApplicationRepository.findByUser_UserId(userId);
+        if (application == null) {
+            throw new ListenerApplicationNotFoundException("Listener Application not found for User ID: " + userId);
+        }
+        return ListenerApplicationMapper.toResponseDTO(application);
+    }
+
+    private String getUsernameFromContext() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return (principal instanceof UserDetails) ? ((UserDetails) principal).getUsername() : principal.toString();
+    }
+
+    private String getRoleFromContext() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return (principal instanceof UserDetails) ? ((UserDetails) principal).getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .findFirst()
+                .orElse("ROLE_USER") : "ROLE_USER";
+    }
+}
