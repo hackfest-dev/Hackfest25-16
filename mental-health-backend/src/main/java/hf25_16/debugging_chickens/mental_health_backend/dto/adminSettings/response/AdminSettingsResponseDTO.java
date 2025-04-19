@@ -1,0 +1,14 @@
+package hf25_16.debugging_chickens.mental_health_backend.dto.adminSettings.response;
+import lombok.Data;
+import java.time.LocalDateTime;
+
+@Data
+public class AdminSettingsResponseDTO {
+    private Integer settingId;
+    private Integer adminId;
+    private Boolean isCounsellor;
+    private Integer maxAppointmentsPerDay;
+    private Integer defaultTimeSlotDuration;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+}

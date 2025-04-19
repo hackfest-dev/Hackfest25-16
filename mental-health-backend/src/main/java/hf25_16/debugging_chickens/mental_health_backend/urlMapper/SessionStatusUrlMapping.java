@@ -1,0 +1,9 @@
+package hf25_16.debugging_chickens.mental_health_backend.urlMapper;
+
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+public class SessionStatusUrlMapping {
+    public static final String BASE_URL = "/api/v1/session-status";
+    public static final String FILTER_SESSIONS = BASE_URL + "/filter";
+}

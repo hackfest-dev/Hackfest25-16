@@ -1,0 +1,17 @@
+package hf25_16.debugging_chickens.mental_health_backend.dto.blog.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class BlogSummaryDTO {
+    private Integer id;
+    private String title;
+    private String summary;
+    private Integer likeCount;
+    private String imageUrl;
+    private boolean likedByCurrentUser;
+}

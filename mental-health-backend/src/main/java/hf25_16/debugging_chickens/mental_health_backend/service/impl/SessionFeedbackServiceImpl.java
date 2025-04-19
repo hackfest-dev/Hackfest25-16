@@ -1,0 +1,129 @@
+package hf25_16.debugging_chickens.mental_health_backend.service.impl;
+
+
+import hf25_16.debugging_chickens.mental_health_backend.dto.sessionFeedback.request.SessionFeedbackRequestDTO;
+import hf25_16.debugging_chickens.mental_health_backend.dto.sessionFeedback.response.SessionFeedbackResponseDTO;
+import hf25_16.debugging_chickens.mental_health_backend.dto.sessionFeedback.response.SessionFeedbackSummaryResponseDTO;
+import hf25_16.debugging_chickens.mental_health_backend.exception.listener.ListenerNotFoundException;
+import hf25_16.debugging_chickens.mental_health_backend.exception.session.FeedbackNotFoundException;
+import hf25_16.debugging_chickens.mental_health_backend.mapper.SessionFeedbackMapper;
+import hf25_16.debugging_chickens.mental_health_backend.model.Listener;
+import hf25_16.debugging_chickens.mental_health_backend.model.SessionFeedback;
+import hf25_16.debugging_chickens.mental_health_backend.repository.ListenerRepository;
+import hf25_16.debugging_chickens.mental_health_backend.repository.SessionFeedbackRepository;
+import hf25_16.debugging_chickens.mental_health_backend.service.SessionFeedbackService;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Service
+public class SessionFeedbackServiceImpl implements SessionFeedbackService {
+
+    private final SessionFeedbackRepository sessionFeedbackRepository;
+    private final SessionFeedbackMapper sessionFeedbackMapper;
+    private final ListenerRepository listenerRepository;
+
+    public SessionFeedbackServiceImpl(SessionFeedbackRepository sessionFeedbackRepository, SessionFeedbackMapper sessionFeedbackMapper, ListenerRepository listenerRepository) {
+        this.sessionFeedbackRepository = sessionFeedbackRepository;
+        this.sessionFeedbackMapper = sessionFeedbackMapper;
+        this.listenerRepository = listenerRepository;
+    }
+
+    @Override
+    @Transactional
+    public SessionFeedbackResponseDTO createFeedback(SessionFeedbackRequestDTO requestDTO) {
+        SessionFeedback sessionFeedback = sessionFeedbackMapper.toEntity(requestDTO);
+        Listener listener = sessionFeedback.getSession().getListener();
+
+        if (listener == null) {
+            throw new ListenerNotFoundException("Listener not found for the session");
+        }
+
+        // Calculate the new average rating
+        BigDecimal currentTotalRating = listener.getAverageRating().multiply(BigDecimal.valueOf(listener.getFeedbackCount()));
+        BigDecimal newTotalRating = currentTotalRating.add(BigDecimal.valueOf(sessionFeedback.getRating()));
+        BigDecimal newAverageRating = newTotalRating.divide(BigDecimal.valueOf(listener.getFeedbackCount() + 1), 2, BigDecimal.ROUND_HALF_UP);
+
+        // Update listener's average rating and feedback count
+        listener.setAverageRating(newAverageRating);
+        listener.setFeedbackCount(listener.getFeedbackCount() + 1);
+
+        // Save the updated listener details
+        listenerRepository.save(listener);
+
+        sessionFeedback = sessionFeedbackRepository.save(sessionFeedback);
+        return sessionFeedbackMapper.toResponseDTO(sessionFeedback);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SessionFeedbackResponseDTO> getFeedbackBySessionId(Integer sessionId) {
+        List<SessionFeedback> feedbackList = sessionFeedbackRepository.findBySession_SessionId(sessionId);
+        if (feedbackList.isEmpty()) {
+            throw new FeedbackNotFoundException("Feedback for session with ID " + sessionId + " not found");
+        }
+        return feedbackList.stream()
+                .map(sessionFeedbackMapper::toResponseDTO)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public SessionFeedbackResponseDTO getFeedbackById(Integer feedbackId) {
+        SessionFeedback sessionFeedback = sessionFeedbackRepository.findById(feedbackId)
+                .orElseThrow(() -> new FeedbackNotFoundException("Feedback with id " + feedbackId + " not found"));
+        return sessionFeedbackMapper.toResponseDTO(sessionFeedback);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SessionFeedbackResponseDTO> getAllListenerFeedback(Integer id, String type) {
+        List<SessionFeedback> feedbackList;
+        if (type.equals("listenerId")) {
+            feedbackList = sessionFeedbackRepository.findByListener_ListenerId(id);
+        } else {
+            Optional<Listener> listenerOptional = listenerRepository.findByUser_UserId(id);
+            if (listenerOptional.isEmpty()) {
+                throw new ListenerNotFoundException("No listener found for user with ID " + id);
+            }
+            feedbackList = sessionFeedbackRepository.findByListener(listenerOptional.get());
+        }
+        if (feedbackList.isEmpty()) {
+            throw new ListenerNotFoundException("No feedback found for listener with ID " + id);
+        }
+        return feedbackList.stream()
+                .map(sessionFeedbackMapper::toResponseDTO)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public SessionFeedbackSummaryResponseDTO getFeedbackSummary() {
+        List<SessionFeedback> feedbacks = sessionFeedbackRepository.findAll();
+        if (feedbacks.isEmpty()) {
+            throw new FeedbackNotFoundException("No feedback found");
+        }
+
+        BigDecimal avgRating = feedbacks.stream()
+                .map(SessionFeedback::getRating)
+                .map(BigDecimal::valueOf)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .divide(BigDecimal.valueOf(feedbacks.size()), 2, BigDecimal.ROUND_HALF_UP);
+
+        Map<Integer, Long> feedbacksByRating = feedbacks.stream()
+                .collect(Collectors.groupingBy(SessionFeedback::getRating, Collectors.counting()));
+
+        return new SessionFeedbackSummaryResponseDTO(
+                avgRating,
+                feedbacksByRating.getOrDefault(5, 0L).intValue(),
+                feedbacksByRating.getOrDefault(4, 0L).intValue(),
+                feedbacksByRating.getOrDefault(3, 0L).intValue(),
+                feedbacksByRating.getOrDefault(2, 0L).intValue(),
+                feedbacksByRating.getOrDefault(1, 0L).intValue()
+        );
+    }
+}
