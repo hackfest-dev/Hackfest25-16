@@ -5,7 +5,7 @@ import { updateBlog } from "@/service/blog/UpdateBlog";
 import { RootState } from "@/store";
 import { useSelector } from "react-redux";
 import Navbar1 from "@/components/navbar/Navbar2";
-import { Heart, Eye, Pencil, Trash, MessageCircle } from "lucide-react";
+import { Heart, Eye, Pencil, Trash, MessageCircle, X } from "lucide-react";
 import Head from "next/head";
 import EditBlogModal from "@/components/blog/EditBlogModal";
 import DeleteBlogByID from "@/service/blog/DeleteBlogByID";
@@ -23,6 +23,7 @@ const BlogPost = () => {
   const [imageLoading, setImageLoading] = useState(true);
   const [article, setArticle] = useState<Article | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showErrorModal, setShowErrorModal] = useState<boolean>(false);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [showContactModal, setShowContactModal] = useState<boolean>(false);
   const [contactMessage, setContactMessage] = useState<string>("");
@@ -49,8 +50,9 @@ const BlogPost = () => {
           token
         )) as Article;
         setArticle(response);
-      } catch (error) {
-        setError("Failed to fetch the article. Please try again later" + error);
+      } catch (err) {
+        setError("Failed to fetch the article. Please try again later: " + err);
+        setShowErrorModal(true);
       }
     };
 
@@ -70,8 +72,9 @@ const BlogPost = () => {
           ? { ...prevArticle, ...updatedArticle }
           : prevArticle
       );
-    } catch (error) {
-      setError("Failed to toggle like." + error);
+    } catch (err) {
+      setError("Failed to toggle like: " + err);
+      setShowErrorModal(true);
     }
   };
 
@@ -87,7 +90,13 @@ const BlogPost = () => {
   };
 
   const handleDeleteClick = async () => {
-    DeleteBlogByID(Number(postId), token);
+    try {
+      await DeleteBlogByID(Number(postId), token);
+      router.push("/blog"); // Redirect to blog list page after deletion
+    } catch (err) {
+      setError("Failed to delete blog: " + err);
+      setShowErrorModal(true);
+    }
   };
 
   const handleSaveChanges = async () => {
@@ -97,6 +106,7 @@ const BlogPost = () => {
       !editedBlogData.summary
     ) {
       setError("Please fill in all fields.");
+      setShowErrorModal(true);
       return;
     }
 
@@ -112,8 +122,9 @@ const BlogPost = () => {
 
       setArticle(updatedArticle as Article);
       setEditMode(false);
-    } catch (error) {
-      setError("Failed to save blog updates." + error);
+    } catch (err) {
+      setError("Failed to save blog updates: " + err);
+      setShowErrorModal(true);
     }
   };
 
@@ -152,22 +163,18 @@ const BlogPost = () => {
         setShowContactModal(false);
         setContactSuccess(false);
       }, 3000);
-    } catch (error) {
+    } catch (err) {
       setError("Failed to send message. Please try again.");
+      setShowErrorModal(true);
     } finally {
       setContactSending(false);
     }
   };
 
-  if (error) {
-    return (
-      <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-green-50 to-emerald-100">
-        <p className="text-red-500 bg-white/80 backdrop-blur-md p-4 rounded-lg shadow-lg">
-          {error}
-        </p>
-      </div>
-    );
-  }
+  const closeErrorModal = () => {
+    setShowErrorModal(false);
+    setError(null);
+  };
 
   return (
     <div className="relative min-h-screen">
@@ -278,8 +285,7 @@ const BlogPost = () => {
                 </p>
               </div>
               {article &&
-                article.userId !== Number(ReduxuserId) &&
-                article.isOpenForCommunication && (
+                article.userId !== Number(ReduxuserId) && (
                   <button
                     onClick={handleContactAuthor}
                     className="ml-4 flex items-center justify-center space-x-2 rounded-full py-3 px-5 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 group focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2"
@@ -304,6 +310,7 @@ const BlogPost = () => {
         )}
       </main>
 
+      {/* Edit Blog Modal */}
       {editMode && (
         <EditBlogModal
           title={editedBlogData.title}
@@ -448,6 +455,56 @@ const BlogPost = () => {
                 Your mental health matters. We'll ensure your message is
                 delivered respectfully.
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error Modal */}
+      {showErrorModal && error && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 transform transition-all duration-300 animate-fade-in">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold text-red-600">Error</h3>
+              <button
+                onClick={closeErrorModal}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            
+            <div className="bg-red-50 p-4 rounded-lg">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <svg 
+                    className="h-6 w-6 text-red-600" 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" 
+                    />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-red-700">{error}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={closeErrorModal}
+                className="px-5 py-2 rounded-lg bg-red-100 text-red-700 font-medium hover:bg-red-200 transition-colors"
+              >
+                Dismiss
+              </button>
             </div>
           </div>
         </div>
