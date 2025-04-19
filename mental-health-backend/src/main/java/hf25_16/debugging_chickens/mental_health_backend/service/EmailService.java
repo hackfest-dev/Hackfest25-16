@@ -1,7 +1,8 @@
 package hf25_16.debugging_chickens.mental_health_backend.service;
 
 
-import hf25_16.debugging_chickens.mental_health_backend.dto.massEmail.MassEmailRequestDTO;
+import hf25_16.debugging_chickens.mental_health_backend.dto.email.EmailRequestDTO;
+import hf25_16.debugging_chickens.mental_health_backend.dto.email.MassEmailRequestDTO;
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -24,4 +25,5 @@ public interface EmailService {
     CompletableFuture<Void> sendAppointmentRequestedEmail(String userEmail, String adminEmail, LocalDateTime appointmentTime);
     CompletableFuture<Void> sendAppointmentConfirmedEmail(String userEmail, LocalDateTime appointmentTime);
     CompletableFuture<Void> sendAppointmentCancelledEmail(String userEmail, LocalDateTime appointmentTime, String cancellationReason);
+    CompletableFuture<Void> sendEmailToUser(Integer userId, EmailRequestDTO request);
 }

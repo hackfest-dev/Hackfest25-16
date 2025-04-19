@@ -1,4 +1,4 @@
-package hf25_16.debugging_chickens.mental_health_backend.dto.massEmail;
+package hf25_16.debugging_chickens.mental_health_backend.dto.email;
 
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
