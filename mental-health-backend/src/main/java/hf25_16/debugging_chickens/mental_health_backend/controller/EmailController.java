@@ -63,7 +63,7 @@ public class EmailController {
             }
         }
     }
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+
     @PostMapping(value = EmailUrlMapping.USER_EMAIL)
     public ResponseEntity<String> sendEmailToUser(@PathVariable Integer userId,
                                                   @RequestBody EmailRequestDTO request) {

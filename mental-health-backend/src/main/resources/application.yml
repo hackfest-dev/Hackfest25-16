@@ -95,5 +95,5 @@ springdoc:
     tags-sorter: alpha
     operations-sorter: method
   show-actuator: true
-  packages-to-scan: com.dbms.mentalhealth.controller
+  packages-to-scan: hf25_16.debugging_chickens.mental_health_backend.controller
   paths-to-exclude: /error
