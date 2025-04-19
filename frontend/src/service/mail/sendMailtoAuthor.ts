@@ -10,12 +10,16 @@ export const sendMailToAuthor = async (
   accessToken: string
 ) => {
   try {
-    const formData = new FormData();
-    formData.append("subject", emailData.subject);
-    formData.append("body", emailData.body);
+    console.log("Email data:", emailData);
+    console.log("User ID:", userId);
+    console.log("Access token:", accessToken);
+
     const response = await axiosInstance.post(
       EMAIL_API_ENDPOINTS.SEND_EMAIL(userId),
-      formData,
+      {
+        subject: emailData.subject,
+        body: emailData.body,
+      },
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,

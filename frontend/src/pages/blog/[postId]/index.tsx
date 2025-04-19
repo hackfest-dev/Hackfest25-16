@@ -51,6 +51,7 @@ const BlogPost = () => {
           token
         )) as Article;
         setArticle(response);
+        {console.log("ARTICLE>>>>>>>>>>",article)}
       } catch (err) {
         setError("Failed to fetch the article. Please try again later: " + err);
         setShowErrorModal(true);
@@ -296,8 +297,8 @@ const BlogPost = () => {
                   {article?.summary}
                 </p>
               </div>
-              {article &&
-                article.userId !== Number(ReduxuserId) && article.isOpenForCommunication && (
+              
+              {article.isOpenForCommunication && (
                   <button
                     onClick={handleContactAuthor}
                     className="ml-4 flex items-center justify-center space-x-2 rounded-full py-3 px-5 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 group focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2"

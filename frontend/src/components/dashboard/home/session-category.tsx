@@ -8,16 +8,22 @@ import {
   ResponsiveContainer,
   CartesianGrid,
   Legend,
-  Cell
+  Cell,
 } from "recharts";
-import { fetchSessionCategoryCount, SessionCategoryCount } from '@/service/session/getSessionCategoryCount';
+import {
+  fetchSessionCategoryCount,
+  SessionCategoryCount,
+} from "@/service/session/getSessionCategoryCount";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 
 const transformDataForChart = (data: SessionCategoryCount) => {
   return Object.entries(data)
     .map(([key, value]) => ({
-      category: key.replace(/Count$/, "").replace(/([A-Z])/g, " $1").trim(),
+      category: key
+        .replace(/Count$/, "")
+        .replace(/([A-Z])/g, " $1")
+        .trim(),
       count: value,
     }))
     .sort((a, b) => b.count - a.count); // Sort by count in descending order
@@ -25,8 +31,16 @@ const transformDataForChart = (data: SessionCategoryCount) => {
 
 // Color palette for bars
 const COLORS = [
-  "#059669", "#10B981", "#34D399", "#6EE7B7", "#A7F3D0",
-  "#047857", "#065F46", "#064E3B", "#022C22", "#047857"
+  "#059669",
+  "#10B981",
+  "#34D399",
+  "#6EE7B7",
+  "#A7F3D0",
+  "#047857",
+  "#065F46",
+  "#064E3B",
+  "#022C22",
+  "#047857",
 ];
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -42,7 +56,9 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 const SessionCategoryChartPage = () => {
-  const [chartData, setChartData] = useState<{ category: string; count: number }[]>([]);
+  const [chartData, setChartData] = useState<
+    { category: string; count: number }[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
@@ -70,8 +86,12 @@ const SessionCategoryChartPage = () => {
     <div className="p-6 md:p-8 min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-lg p-6">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-green-700 text-center">Session Categories</h1>
-          <p className="text-gray-500 text-center mt-2">Distribution of sessions by category</p>
+          <h1 className="text-3xl font-bold text-green-700 text-center">
+            Session Categories
+          </h1>
+          <p className="text-gray-500 text-center mt-2">
+            Distribution of sessions by category
+          </p>
         </div>
 
         {loading ? (
@@ -81,23 +101,21 @@ const SessionCategoryChartPage = () => {
         ) : error ? (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
             <p>{error}</p>
-            <button 
-              onClick={() => window.location.reload()} 
+            <button
+              onClick={() => window.location.reload()}
               className="mt-2 bg-red-100 hover:bg-red-200 text-red-800 font-semibold py-1 px-3 rounded-md text-sm"
             >
               Retry
             </button>
           </div>
         ) : chartData.length === 0 ? (
-          <div className="text-center text-gray-500 p-8">No category data available</div>
+          <div className="text-center text-gray-500 p-8">
+            No category data available
+          </div>
         ) : (
           <>
             <div className="mb-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-green-50 p-4 rounded-lg text-center shadow-sm">
-                  <p className="text-gray-600 text-sm">Total Categories</p>
-                  <p className="text-2xl font-bold text-green-700">{chartData.length}</p>
-                </div>
                 <div className="bg-green-50 p-4 rounded-lg text-center shadow-sm">
                   <p className="text-gray-600 text-sm">Total Sessions</p>
                   <p className="text-2xl font-bold text-green-700">
@@ -107,7 +125,7 @@ const SessionCategoryChartPage = () => {
                 <div className="bg-green-50 p-4 rounded-lg text-center shadow-sm">
                   <p className="text-gray-600 text-sm">Top Category</p>
                   <p className="text-2xl font-bold text-green-700">
-                    {chartData.length > 0 ? chartData[0].category : 'N/A'}
+                    {chartData.length > 0 ? chartData[0].category : "N/A"}
                   </p>
                 </div>
               </div>
@@ -125,21 +143,21 @@ const SessionCategoryChartPage = () => {
                     dataKey="category"
                     angle={-45}
                     textAnchor="end"
-                    tick={{ fill: '#4b5563', fontSize: 12 }}
+                    tick={{ fill: "#4b5563", fontSize: 12 }}
                     interval={0}
                     height={80}
                     tickMargin={10}
                   />
                   <YAxis
-                    tick={{ fill: '#4b5563' }}
-                    axisLine={{ stroke: '#e5e7eb' }}
-                    tickLine={{ stroke: '#e5e7eb' }}
+                    tick={{ fill: "#4b5563" }}
+                    axisLine={{ stroke: "#e5e7eb" }}
+                    tickLine={{ stroke: "#e5e7eb" }}
                   />
                   <Tooltip content={<CustomTooltip />} />
                   <Legend
                     verticalAlign="top"
                     height={36}
-                    wrapperStyle={{ paddingBottom: '20px' }}
+                    wrapperStyle={{ paddingBottom: "20px" }}
                   />
                   <Bar
                     dataKey="count"
@@ -147,7 +165,10 @@ const SessionCategoryChartPage = () => {
                     radius={[4, 4, 0, 0]}
                   >
                     {chartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
                     ))}
                   </Bar>
                 </BarChart>
@@ -155,26 +176,51 @@ const SessionCategoryChartPage = () => {
             </div>
 
             <div className="mt-8">
-              <h3 className="text-lg font-semibold text-gray-700 mb-3">Session Category Details</h3>
+              <h3 className="text-lg font-semibold text-gray-700 mb-3">
+                Session Category Details
+              </h3>
               <div className="overflow-x-auto">
                 <table className="min-w-full bg-white">
                   <thead className="bg-green-50">
                     <tr>
-                      <th className="py-2 px-4 border-b text-left text-sm font-medium text-gray-700">Category</th>
-                      <th className="py-2 px-4 border-b text-left text-sm font-medium text-gray-700">Count</th>
-                      <th className="py-2 px-4 border-b text-left text-sm font-medium text-gray-700">Percentage</th>
+                      <th className="py-2 px-4 border-b text-left text-sm font-medium text-gray-700">
+                        Category
+                      </th>
+                      <th className="py-2 px-4 border-b text-left text-sm font-medium text-gray-700">
+                        Count
+                      </th>
+                      <th className="py-2 px-4 border-b text-left text-sm font-medium text-gray-700">
+                        Percentage
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {chartData.map((item, index) => {
-                      const totalSessions = chartData.reduce((sum, item) => sum + item.count, 0);
-                      const percentage = ((item.count / totalSessions) * 100).toFixed(1);
-                      
+                      const totalSessions = chartData.reduce(
+                        (sum, item) => sum + item.count,
+                        0
+                      );
+                      const percentage = (
+                        (item.count / totalSessions) *
+                        100
+                      ).toFixed(1);
+
                       return (
-                        <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                          <td className="py-2 px-4 border-b text-sm text-gray-900">{item.category}</td>
-                          <td className="py-2 px-4 border-b text-sm text-gray-900">{item.count}</td>
-                          <td className="py-2 px-4 border-b text-sm text-gray-900">{percentage}%</td>
+                        <tr
+                          key={index}
+                          className={
+                            index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                          }
+                        >
+                          <td className="py-2 px-4 border-b text-sm text-gray-900">
+                            {item.category}
+                          </td>
+                          <td className="py-2 px-4 border-b text-sm text-gray-900">
+                            {item.count}
+                          </td>
+                          <td className="py-2 px-4 border-b text-sm text-gray-900">
+                            {percentage}%
+                          </td>
                         </tr>
                       );
                     })}
