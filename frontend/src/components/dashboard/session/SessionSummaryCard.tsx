@@ -5,26 +5,26 @@ import Badge from "@/components/ui/badge";
 const getCategoryStyles = (category) => {
   switch (category) {
     case 'STRESS':
-      return 'bg-gradient-to-r from-orange-50 to-orange-100 text-orange-700 border-orange-200';
+      return 'bg-gradient-to-r from-orange-200 to-orange-300 text-orange-700 border-orange-200';
     case 'DEPRESSION':
-      return 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 border-blue-200';
+      return 'bg-gradient-to-r from-blue-200 to-blue-300 text-blue-700 border-blue-200';
     case 'SUICIDAL':
-      return 'bg-gradient-to-r from-red-50 to-red-100 text-red-700 border-red-200';
+      return 'bg-gradient-to-r from-red-200 to-red-300 text-red-700 border-red-200';
     case 'BREAKUP':
-      return 'bg-gradient-to-r from-rose-50 to-rose-100 text-rose-700 border-rose-200';
+      return 'bg-gradient-to-r from-rose-200 to-rose-300 text-rose-700 border-rose-200';
     case 'ANXIETY':
       return 'bg-gradient-to-r from-amber-200 to-amber-300 text-amber-700 border-amber-200';
     case 'GRIEF':
-      return 'bg-gradient-to-r from-purple-50 to-purple-100 text-purple-700 border-purple-200';
+      return 'bg-gradient-to-r from-purple-200 to-purple-300 text-purple-700 border-purple-200';
     case 'TRAUMA':
-      return 'bg-gradient-to-r from-pink-50 to-pink-100 text-pink-700 border-pink-200';
+      return 'bg-gradient-to-r from-pink-200 to-pink-300 text-pink-700 border-pink-200';
     case 'RELATIONSHIP_ISSUES':
-      return 'bg-gradient-to-r from-teal-50 to-teal-100 text-teal-700 border-teal-200';
+      return 'bg-gradient-to-r from-teal-200 to-teal-300 text-teal-700 border-teal-200';
     case 'SELF_ESTEEM':
-      return 'bg-gradient-to-r from-green-50 to-green-100 text-green-700 border-green-200';
+      return 'bg-gradient-to-r from-green-200 to-green-300 text-green-700 border-green-200';
     case 'OTHER':
     default:
-      return 'bg-gradient-to-r from-slate-50 to-slate-100 text-slate-700 border-slate-200';
+      return 'bg-gradient-to-r from-slate-200 to-slate-300 text-slate-700 border-slate-200';
   }
 };
 
