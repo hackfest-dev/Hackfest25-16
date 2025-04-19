@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/router";
 import Navbar from "@/components/navbar/Navbar2";
-import { submitFeedback } from "@/service/sessionReport/listnerReport"; 
+import { submitFeedback } from "@/service/sessionReport/listnerReport";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 
@@ -117,7 +117,7 @@ export default function Component() {
             <div className="flex justify-center">
               <Button
                 type="submit"
-                className="px-8 py-2 rounded-full bg-black hover:bg-black/90"
+                className="px-8 py-2 rounded-full bg-black text-white hover:bg-black/90"
                 onClick={handleSubmit}
                 disabled={isSubmitting}
               >
