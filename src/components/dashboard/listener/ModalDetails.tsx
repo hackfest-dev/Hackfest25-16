@@ -45,7 +45,7 @@ const DetailsModal: React.FC<DetailsProps> = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await getListenerDetails(id, token, type);
+        const data = await getListenerDetails(id, token, type) as ListenerDetails;
         setListener(data);
       } catch (error) {
         setError("Error fetching listener details." + error);

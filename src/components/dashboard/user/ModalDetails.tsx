@@ -32,7 +32,7 @@ const ModalDetails: React.FC<DetailsProps> = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await getUserDetails(userId, token);
+        const data = await getUserDetails(userId, token) as UserDetails;
         setUser(data);
       } catch (error) {
         setError("Error fetching user details." + error);
