@@ -103,14 +103,7 @@ const DashboardPage = () => {
             </CardContent>
           </Card>
         </div>
-        <Card>
-          <CardHeader>
-            
-          </CardHeader>
-          <CardContent>
-            <SessionCategoryChartPage />
-          </CardContent>
-        </Card>
+        <SessionCategoryChartPage />
         <section className="mt-8">
           <div className="bg-white/80 rounded-lg shadow-lg border border-emerald-100">
             <div className="p-4 border-b border-emerald-100">

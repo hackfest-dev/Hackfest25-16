@@ -83,8 +83,8 @@ const SessionCategoryChartPage = () => {
   }, [accessToken]);
 
   return (
-    <div className="p-6 md:p-8 min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-lg p-6">
+    <div className="md:p-8 min-h-screen">
+      <div className="max-w-6xl mx-auto rounded-xl">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-green-700 text-center">
             Session Categories
@@ -115,7 +115,7 @@ const SessionCategoryChartPage = () => {
         ) : (
           <>
             <div className="mb-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid p-4 grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-green-50 p-4 rounded-lg text-center shadow-sm">
                   <p className="text-gray-600 text-sm">Total Sessions</p>
                   <p className="text-2xl font-bold text-green-700">

@@ -51,7 +51,7 @@ export default function Home() {
       <section className="relative min-h-screen flex items-center pt-20">
         <div className="absolute h-30 inset-0">
           <Image
-            src="/images/images.jpeg"
+            src="/images/mental-recovery-green.webp"
             alt="Hero background"
             fill
             className="object-cover brightness-50"
