@@ -18,16 +18,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-public class MassEmailController {
+public class EmailController {
 
     private final EmailService emailService;
 
     @Autowired
-    public MassEmailController(EmailService emailService) {
+    public EmailController(EmailService emailService) {
         this.emailService = emailService;
     }
 
-    Logger logger = LoggerFactory.getLogger(MassEmailController.class);
+    Logger logger = LoggerFactory.getLogger(EmailController.class);
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping(value = EmailUrlMapping.MASS_EMAIL, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> sendMassEmail(@RequestParam("recipientType") String recipientType,
