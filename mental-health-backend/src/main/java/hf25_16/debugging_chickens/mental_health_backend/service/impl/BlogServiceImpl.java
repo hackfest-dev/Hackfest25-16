@@ -76,7 +76,7 @@ public class BlogServiceImpl implements BlogService {
         blog.setUserId(userId);
 
         // Make sure isOpenForCommunication is transferred from DTO to entity
-        blog.setOpenForCommunication(blogRequestDTO.getIsOpenForCommunication());
+        blog.setIsOpenForCommunication(blogRequestDTO.getIsOpenForCommunication());
 
         if (image != null && !image.isEmpty()) {
             CompletableFuture<String> imageUrlFuture = imageStorageService.uploadImage(image);
@@ -157,7 +157,7 @@ public class BlogServiceImpl implements BlogService {
         blog.setSummary(blogRequestDTO.getSummary());
 
         // Update the isOpenForCommunication field
-        blog.setOpenForCommunication(blogRequestDTO.getIsOpenForCommunication());
+        blog.setIsOpenForCommunication(blogRequestDTO.getIsOpenForCommunication());
 
         blog.setBlogApprovalStatus(BlogApprovalStatus.PENDING);
         Blog updatedBlog = blogRepository.save(blog);

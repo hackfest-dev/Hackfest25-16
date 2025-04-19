@@ -65,7 +65,7 @@ public class Blog {
     private LocalDateTime updatedAt;
 
     @Column(name="is_open_for_communication", nullable = false)
-    private boolean isOpenForCommunication = false;
+    private Boolean isOpenForCommunication = false;
 
     @OneToMany(mappedBy = "blog", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Set<BlogLike> likes;

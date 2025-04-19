@@ -12,3 +12,4 @@ public class BlogRequestDTO {
     private Boolean isOpenForCommunication;
     private String summary;
 }
+

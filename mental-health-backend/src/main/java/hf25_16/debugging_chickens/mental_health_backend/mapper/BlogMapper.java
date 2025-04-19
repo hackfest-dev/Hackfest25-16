@@ -15,7 +15,7 @@ public class BlogMapper {
         blog.setContent(blogRequestDTO.getContent());
         blog.setUserId(blogRequestDTO.getUserId());
         blog.setSummary(blogRequestDTO.getSummary());
-        blog.setOpenForCommunication(blogRequestDTO.getIsOpenForCommunication());
+        blog.setIsOpenForCommunication(blogRequestDTO.getIsOpenForCommunication());
         // Image URL will be set in the service layer after uploading to Cloudinary
         return blog;
     }
@@ -29,7 +29,7 @@ public class BlogMapper {
                 blog.getUserId(),
                 blog.getImageUrl(),
                 blog.getSummary(),
-                blog.isOpenForCommunication(),
+                blog.getIsOpenForCommunication(),
                 blog.getPublishDate(),
                 blog.getViewCount(),
                 blog.getLikeCount(),
@@ -47,7 +47,7 @@ public class BlogMapper {
         summaryDTO.setSummary(blog.getSummary());
         summaryDTO.setLikeCount(blog.getLikeCount());
         summaryDTO.setImageUrl(blog.getImageUrl());
-        summaryDTO.setIsOpenForCommunication(blog.isOpenForCommunication());
+        summaryDTO.setIsOpenForCommunication(blog.getIsOpenForCommunication());
         summaryDTO.setLikedByCurrentUser(likedByCurrentUser);
         return summaryDTO;
     }
