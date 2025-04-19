@@ -1,20 +1,34 @@
 import axiosInstance from "@/utils/axios";
+import { EMAIL_API_ENDPOINTS } from "@/mapper/emailMapper";
 
-interface SendMailPayload {
-  userId: string;
-  message: string;
-}
-
-export const sendMailToUser = async (payload: SendMailPayload): Promise<void> => {
+export const sendMailToAuthor = async (
+  message: string,
+  userId: number,
+  accessToken: string
+) => {
   try {
-    const response = await axiosInstance.post("https://api.example.com/send-mail", payload, {
-      headers: {
-        "Content-Type": "application/json",
+    const response = await axiosInstance.post(
+      EMAIL_API_ENDPOINTS.SEND_EMAIL(userId),
+      {
+        message,
       },
-    });
-    console.log("Mail sent successfully:", response.data);
-  } catch (error) {
-    console.error("Error sending mail:", error);
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response;
+  } catch (error: any) {
+    if (error.response) {
+      console.error("Error response data:", error.response.data);
+    } else if (error.request) {
+      console.error("Error request:", error.request);
+    } else {
+      console.error("Error message:", error.message);
+    }
     throw error;
   }
 };
