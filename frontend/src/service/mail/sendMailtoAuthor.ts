@@ -2,7 +2,10 @@ import axiosInstance from "@/utils/axios";
 import { EMAIL_API_ENDPOINTS } from "@/mapper/emailMapper";
 
 export const sendMailToAuthor = async (
-  message: string,
+  emailData: {
+    subject: string;
+    body: string;
+  },
   userId: number,
   accessToken: string
 ) => {
@@ -10,7 +13,8 @@ export const sendMailToAuthor = async (
     const response = await axiosInstance.post(
       EMAIL_API_ENDPOINTS.SEND_EMAIL(userId),
       {
-        message,
+        subject: emailData.subject,
+        body: emailData.body,
       },
       {
         headers: {
