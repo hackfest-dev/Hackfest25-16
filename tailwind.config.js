@@ -1,4 +1,3 @@
-// tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -12,14 +11,14 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          light: 'rgba(31, 97, 56, 0.92)',
-          DEFAULT: 'rgba(15, 90, 43, 0.92)',
-          dark: 'rgba(7, 71, 31, 0.92)',
-          softGreen: 'rgba(64, 175, 105, 0.92)',
+          light: 'rgba(31, 97, 156, 0.92)',  // Lighter Blue
+          DEFAULT: 'rgba(15, 70, 147, 0.92)', // Default Blue
+          dark: 'rgba(7, 46, 108, 0.92)',    // Darker Blue
+          softBlue: 'rgba(64, 175, 255, 0.92)', // Softer Blue
         },
         gradient: {
-          from: '#8b5cf6',
-          to: '#3b82f6',
+          from: '#8b5cf6',  // Purple (starting point of gradient)
+          to: '#3b82f6',    // Blue (ending point of gradient)
         },
       },
     },

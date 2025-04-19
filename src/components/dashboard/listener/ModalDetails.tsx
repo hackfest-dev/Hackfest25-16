@@ -207,7 +207,10 @@ const DetailsModal: React.FC<DetailsProps> = ({
                     <Button
                       variant="outline"
                       className="text-blue-500 hover:bg-blue-50"
-                      onClick={() => router.push(`/dashboard/listener/sessions/${id}`)}
+                      onClick={() => {
+                        handleClose(); // close modal first
+                        router.push(`/dashboard/listener/sessions/${id}`);
+                      }}
                     >
                       View Sessions
                     </Button>

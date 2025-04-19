@@ -111,7 +111,7 @@ export default function Component() {
         className="w-full py-12 md:py-24 lg:py-32"
         style={{
           background:
-            "linear-gradient(#518a72 1.1px, transparent 1.1px), linear-gradient(to right, #518a72 1.1px, #ffffff 1.1px)",
+            "linear-gradient(#518a72 1.1px, transparent 1.1px), linear-gradient(to right,rgb(81, 138, 136) 1.1px, #ffffff 1.1px)",
           backgroundSize: "20px 20px",
         }}
       >

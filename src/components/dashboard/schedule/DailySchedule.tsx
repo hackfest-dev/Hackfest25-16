@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { Appointment } from "@/lib/types";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, setHours, setMinutes } from "date-fns";
 
 const getColorByStatus = (status: string) => {
   switch (status) {
@@ -14,12 +14,12 @@ const getColorByStatus = (status: string) => {
 };
 
 const DailySchedule: React.FC<{
-  appointments: Appointment[];
+  appointments?: Appointment[];
   date: Date;
-}> = ({ appointments, date }) => {
+}> = ({ appointments = [], date }) => {
   const timeSlots = Array.from({ length: 18 }, (_, i) => {
-    const hour = i + 5; // Start from 5 AM
-    return new Date(2024, 0, 1, hour, 0);
+    const hour = i + 5; // 5 AM to 10 PM
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, 0);
   });
 
   const processedAppointments = useMemo(() => {
@@ -33,22 +33,24 @@ const DailySchedule: React.FC<{
         );
       })
       .map((apt) => {
-        const aptStart = parseISO(`2024-01-01T${apt.startTime}`);
-        const aptEnd = parseISO(`2024-01-01T${apt.endTime}`);
-        const startHour = aptStart.getHours() + aptStart.getMinutes() / 60;
-        const endHour = aptEnd.getHours() + aptEnd.getMinutes() / 60;
-        const top = (startHour - 5) * 96;
-        const height = (endHour - startHour) * 96;
+        const [startHour, startMinute] = apt.startTime.split(":").map(Number);
+        const [endHour, endMinute] = apt.endTime.split(":").map(Number);
+
+        const start = setHours(setMinutes(new Date(date), startMinute), startHour);
+        const end = setHours(setMinutes(new Date(date), endMinute), endHour);
+
+        const startHr = start.getHours() + start.getMinutes() / 60;
+        const endHr = end.getHours() + end.getMinutes() / 60;
+        const top = (startHr - 5) * 96;
+        const height = (endHr - startHr) * 96;
 
         return {
           ...apt,
           top,
           height,
-          startHour,
-          endHour,
         };
       });
-  }, [appointments, date]); 
+  }, [appointments, date]);
 
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
@@ -58,8 +60,8 @@ const DailySchedule: React.FC<{
         </div>
       </div>
 
-      {/* Time grid */}
       <div className="flex">
+        {/* Time labels */}
         <div className="w-20 flex-shrink-0 border-r border-gray-200 bg-white sticky left-0 z-10">
           {timeSlots.map((time, i) => (
             <div key={i} className="h-24 border-b border-gray-200 relative">
@@ -69,28 +71,27 @@ const DailySchedule: React.FC<{
             </div>
           ))}
         </div>
+
+        {/* Appointment blocks */}
         <div className="flex-1 relative">
-          {timeSlots.map((time, timeIdx) => (
-            <div key={timeIdx} className="h-24 border-b border-gray-200" />
+          {timeSlots.map((_, i) => (
+            <div key={i} className="h-24 border-b border-gray-200" />
           ))}
-          {processedAppointments.map((apt, aptIdx) => (
+          {processedAppointments.map((apt, idx) => (
             <div
-              key={aptIdx}
-              className={`absolute left-1 right-1 ${getColorByStatus(
-                apt.status
-              )} rounded-lg border border-blue-200 p-2`}
+              key={idx}
+              className={`absolute left-1 right-1 ${getColorByStatus(apt.status)} rounded-lg border border-blue-200 p-2`}
               style={{
                 top: `${apt.top}px`,
                 height: `${apt.height}px`,
               }}
-              title={apt.appointmentReason} 
+              title={apt.appointmentReason}
             >
               <div className="text-sm sm:text-base font-medium text-blue-900 whitespace-normal">
-                {apt.appointmentReason} 
+                {apt.appointmentReason}
               </div>
               <div className="text-xs sm:text-sm text-blue-700">
-                {format(parseISO(`2024-01-01T${apt.startTime}`), "h:mm a")} -{" "}
-                {format(parseISO(`2024-01-01T${apt.endTime}`), "h:mm a")}
+                {apt.startTime} - {apt.endTime}
               </div>
             </div>
           ))}

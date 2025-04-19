@@ -18,8 +18,13 @@ const refreshToken = async (dispatch: AppDispatch): Promise<void> => {
             { withCredentials: true }
         );
 
-        const accessToken = response.headers["authorization"]?.startsWith("Bearer ")
+        const accessToken = response.headers["authorization"]?.startsWith(
+            "Bearer "
+          )
+            ? response.headers["authorization"].slice(7)
+            : null;
         const data = response.data as RefreshTokenResponse;
+        console.log("Refresh token response:", data, accessToken);
 
         dispatch(
             setUser({

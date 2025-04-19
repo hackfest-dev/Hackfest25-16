@@ -90,7 +90,7 @@ const ApplicationPage = () => {
           </div>
         </div>
       )}
-      <Card className="p-6 container mx-auto">
+      <Card className="p-6 container mx-auto bg-white">
         <CardHeader className="space-y-1">
           <CardTitle>Application</CardTitle>
           <p className="text-sm text-muted-foreground">Create application</p>

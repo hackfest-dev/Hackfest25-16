@@ -15,11 +15,11 @@ const TIME_LABELS = HOURS.map(hour =>
 const TimeSlot: React.FC<TimeSlotProps> = ({
   hour,
   date,
-  appointments,
+  appointments = [],  // Default to empty array if appointments is undefined
   isToday,
   onSelectSlot
 }) => {
-  const slotAppointments = appointments.filter(apt => {
+  const slotAppointments = (appointments || []).filter(apt => {
     const aptHour = parseInt(apt.startTime.split(':')[0]);
     return aptHour === hour;
   });
@@ -56,7 +56,7 @@ const TimeSlot: React.FC<TimeSlotProps> = ({
 };
 
 const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
-  appointments,
+  appointments = [],  // Default to empty array if appointments is undefined
   date = new Date()
 }) => {
   const [selectedSlot, setSelectedSlot] = useState<{ date: Date; hour: number } | null>(null);
@@ -83,9 +83,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
               {weekDays.map((day, idx) => (
                 <div
                   key={idx}
-                  className={`p-1 md:p-4 text-center ${
-                    isSameDay(day, today) ? 'bg-blue-50' : ''
-                  }`}
+                  className={`p-1 md:p-4 text-center ${isSameDay(day, today) ? 'bg-blue-50' : ''}`}
                 >
                   <div className="font-medium text-xs md:text-sm truncate">
                     {format(day, 'EEE')}
@@ -121,9 +119,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
                       key={hourIdx}
                       hour={hour}
                       date={day}
-                      appointments={appointments.filter(apt => 
-                        isSameDay(parseISO(apt.date), day)
-                      )}
+                      appointments={appointments.filter(apt => isSameDay(parseISO(apt.date), day))}
                       isToday={isSameDay(day, today)}
                       onSelectSlot={handleSelectSlot}
                     />
