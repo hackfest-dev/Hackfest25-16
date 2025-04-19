@@ -163,6 +163,7 @@ export interface ListenerApplication {
     date: string;
     likeCount: number;
     likedByCurrentUser: boolean;
+    isOpenForCommunication?: boolean;
   }
   
   export interface Article {
